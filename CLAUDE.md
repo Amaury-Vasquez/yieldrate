@@ -9,8 +9,10 @@ This is a Next.js 16 investment visualization application called **YieldRate**. 
 - **Next.js 16** with App Router architecture
 - **React 19** (latest version)
 - **TypeScript** with strict mode enabled
-- **Tailwind CSS v4** for styling
+- **Tailwind CSS v4** for styling with DaisyUI plugin
+- **Recharts** for data visualization
 - **amvasdev-ui** component library for UI components
+- **PostHog** for analytics
 
 ## Key Commands
 
@@ -31,47 +33,61 @@ npm run lint         # Run ESLint
 This is a Next.js App Router project with the following architecture:
 
 - **`app/`** - Next.js App Router directory
+  - `layout.tsx` - Root layout with Inter and Roboto Mono fonts
+  - `page.tsx` - Homepage rendering Home module
+  - `globals.css` - Global styles with Tailwind CSS and DaisyUI themes
+  - `api/calculate/route.ts` - API route for investment calculations (GET/POST)
+  - `error.tsx` - Error boundary
+  - `not-found.tsx` - 404 page
 
-  - `layout.tsx` - Root layout with Geist Sans and Geist Mono fonts
-  - `page.tsx` - Homepage/dashboard
-  - `globals.css` - Global styles with Tailwind CSS imports
-  - `portfolio/[id]/page.tsx` - Portfolio detail pages
-  - `analysis/*/page.tsx` - Analysis feature pages
+- **`modules/`** - Feature modules organized by functionality
+  - `Home/` - Landing page sections (Hero, TimeAdvantage, WhyInvesting, etc.)
+  - `InvestmentChart/` - Investment comparison and visualization module
 
-- **`modules/`** - Feature modules for investment visualization
+- **`components/`** - Shared UI components
+  - `Navbar/` - Navigation bar
+  - `Footer/` - Footer component
+  - `Logo/` - Brand logo
+  - `CustomLink/` - Link component wrapper
 
-  - `PortfolioView/` - Portfolio visualization module
-  - `AnalysisComparison/` - Investment comparison module
-  - `CompoundCalculator/` - Compound interest calculator
-  - `MainDashboard/` - Main dashboard view
+- **`contexts/`** - React Context providers
+  - `InvestmentContext.tsx` - Investment state management (add/update/remove investments, chart type)
+  - `DeviceContext.tsx` - Device detection context
 
-- **`components/visualization/`** - Shared visualization components
+- **`providers/`** - Top-level providers
+  - `index.tsx` - Root provider wrapping PostHog and Device contexts
+  - `Posthog.tsx` - PostHog analytics provider
 
-  - `ChartContainer.tsx` - Reusable chart wrapper
-  - `TimeSeriesChart.tsx` - Time series charts
-  - `MetricsCard.tsx` - Key metrics display
-  - `DateRangePicker.tsx` - Date range selection
+- **`services/`** - Business logic and calculations
+  - `investment.ts` - Investment calculation algorithms, validation, and types
 
-- **`components/ui/`** - UI components from amvasdev-ui
-- **`data/`** - Static data and configuration
-- **`lib/`** - Utility functions and helpers
 - **`hooks/`** - Custom React hooks
+  - `useIsMobile.ts` - Mobile device detection
+  - `useIsTablet.ts` - Tablet device detection
+  - `useIsMobileOrTablet.ts` - Mobile or tablet detection
+  - `useSectionScroll.ts` - Section scrolling behavior
 
-- **`next.config.js`** - Next.js configuration
+- **`utils/`** - Utility functions
+  - `api.ts` - API client functions
+  - `string.ts` - String manipulation utilities
+  - `validations.ts` - Validation helpers
 
-- **`COMPONENT_USAGE_GUIDE.md`** - **CRITICAL CONTEXT FILE**
-  - This file contains comprehensive documentation for the `amvasdev-ui` library
-  - Reference this file for all component props, hooks, and utilities
-  - Contains examples for: Button, Input, Modal, Select, Textarea, Card, Badge, Alert, Progress, Tabs, Accordion, Toast, Dropdown, Tooltip, and more
-  - Includes hooks documentation: `useNotification`, `useForm`, `useLocalStorage`, `useToggle`, etc.
-  - Always check this file before implementing UI components
+- **`constants/`** - Static configuration
+  - `sections.ts` - Section IDs and navigation links
+  - `globals.ts` - Global constants
+  - `breakpoints.ts` - Responsive breakpoints
+
+- **`public/`** - Static assets
 
 ## Important Configuration
 
 - **Path aliases**: `@/*` maps to the root directory (`tsconfig.json`)
 - **TypeScript target**: ES2017 with strict mode enabled
-- **Fonts**: Uses Geist Sans and Geist Mono from Google Fonts
-- **Styling**: Tailwind CSS v4 with dark mode support via `prefers-color-scheme`
+- **Fonts**: Uses Inter and Roboto Mono from Google Fonts
+- **Styling**: Tailwind CSS v4 with DaisyUI plugin
+  - Default theme: `winter` (light)
+  - Dark theme: `dim` (auto-switches via `prefers-color-scheme`)
+  - CSS variables: `--font-sans` (Inter), `--font-mono` (Roboto Mono)
 
 ## Coding Standards
 
@@ -80,7 +96,6 @@ This is a Next.js App Router project with the following architecture:
 **IMPORTANT**: Always use implicit returns for arrow functions when there's no additional logic:
 
 **✅ Correct:**
-
 ```tsx
 const Component = () => <div>Content</div>;
 
@@ -88,7 +103,6 @@ const items = data.map((item) => item.name);
 ```
 
 **❌ Incorrect:**
-
 ```tsx
 const Component = () => {
   return <div>Content</div>;
@@ -100,7 +114,6 @@ const items = data.map((item) => {
 ```
 
 **When to use braces:**
-
 - When you need multiple statements or logic before the return
 - When you need variable declarations
 - When you have conditional logic
@@ -112,7 +125,6 @@ const items = data.map((item) => {
 **CRITICAL: Never use buttons as links.** Always use proper semantic HTML elements:
 
 **✅ Correct:**
-
 ```tsx
 // For navigation, use Link or anchor tags
 import Link from "next/link";
@@ -130,7 +142,6 @@ import Link from "next/link";
 ```
 
 **❌ Incorrect:**
-
 ```tsx
 // Never use buttons with router.push or onClick navigation
 import { useRouter } from "next/navigation";
@@ -141,18 +152,11 @@ const router = useRouter();
 ```
 
 **Why this matters:**
-
 - **Accessibility**: Screen readers understand links vs buttons
 - **SEO**: Search engines can crawl and index link relationships
 - **User Experience**: Right-click → "Open in new tab" works properly
 - **Keyboard Navigation**: Proper tab order and Enter/Space key behavior
 - **Semantic HTML**: Buttons are for actions, links are for navigation
-
-**When to use each:**
-
-- **`<Link>` or `<a>`**: Basic navigation to different pages/routes
-- **`<Button asChild><Link>...`**: Navigation that should look like a button (CTAs, primary actions)
-- **`<button>`**: Triggering actions (submit forms, toggle modals, open dropdowns, etc.)
 
 ### Import Organization
 
@@ -171,7 +175,6 @@ All groups are sorted alphabetically and should have no blank lines between them
 **Static Constants**: Use SCREAMING_SNAKE_CASE for module-level constants that are never reassigned:
 
 **✅ Correct:**
-
 ```tsx
 export const INVESTMENT_TYPES: Record<string, InvestmentType> = { ... };
 export const API_BASE_URL = "https://api.yieldrate.com";
@@ -180,7 +183,6 @@ export const MAX_PORTFOLIO_ITEMS = 100;
 ```
 
 **❌ Incorrect:**
-
 ```tsx
 export const investmentTypes: Record<string, InvestmentType> = { ... };
 export const apiBaseUrl = "https://api.yieldrate.com";
@@ -188,13 +190,11 @@ export const defaultChartColors = ["#3b82f6", "#10b981", "#f59e0b"];
 ```
 
 **Why this matters:**
-
 - Immediately identifies values that should never change
 - Distinguishes static data from reactive state or mutable variables
 - Follows common JavaScript/TypeScript conventions for constants
 
 **When to use:**
-
 - Static configuration objects that never change
 - Hardcoded lookup tables or data structures
 - API URLs, magic numbers, or other fixed values
@@ -206,16 +206,28 @@ export const defaultChartColors = ["#3b82f6", "#10b981", "#f59e0b"];
 
 When using `amvasdev-ui` components in YieldRate:
 
-1. Always import the CSS: `import "amvasdev-ui/dist/index.css";` (typically in root layout)
-2. Reference `COMPONENT_USAGE_GUIDE.md` for accurate component APIs and props
-3. Components support variants, sizes, custom styling, and theme customization
-4. The library uses a design system with consistent color variants: `base`, `neutral`, `primary`, `secondary`, `accent`, `info`, `success`, `warning`, `error`, `ghost`, `link`
+1. Always import the CSS: `import "amvasdev-ui/dist/index.css";` (imported in root layout)
+2. Components support variants, sizes, custom styling, and theme customization
+3. The library uses a design system with consistent color variants: `base`, `neutral`, `primary`, `secondary`, `accent`, `info`, `success`, `warning`, `error`, `ghost`, `link`
 
 **Common UI Components:**
-
 ```tsx
 import { Button, Card, Input, Select, Modal, Badge, Alert } from "amvasdev-ui";
 ```
+
+### DaisyUI Theme Configuration
+
+The app uses DaisyUI themes defined in `app/globals.css`:
+
+```css
+@plugin "daisyui" {
+  themes: winter --default, dim --prefersdark;
+}
+```
+
+- **Light mode**: `winter` theme (default)
+- **Dark mode**: `dim` theme (automatically applies based on system preference)
+- Theme switching is automatic via `prefers-color-scheme`
 
 ### Next.js 16 Specifics
 
@@ -226,9 +238,10 @@ import { Button, Card, Input, Select, Modal, Badge, Alert } from "amvasdev-ui";
 
 ### Styling Patterns
 
-- Tailwind CSS v4 with inline theme configuration in `globals.css`
-- CSS variables for theming: `--background`, `--foreground`, `--font-sans`, `--font-mono`
-- Dark mode handled automatically via `prefers-color-scheme`
+- Tailwind CSS v4 with DaisyUI plugin
+- CSS variables for fonts: `--font-sans`, `--font-mono`
+- DaisyUI utility classes for colors: `bg-base-100`, `text-primary`, etc.
+- Responsive design with Tailwind breakpoints: `md:`, `lg:`, etc.
 
 ## Code Formatting Standards
 
@@ -237,10 +250,9 @@ import { Button, Card, Input, Select, Modal, Badge, Alert } from "amvasdev-ui";
 **CRITICAL**: When writing code examples in template literals, add 2 spaces to each continuation line to ensure proper indentation display:
 
 **✅ Correct:**
-
 ```tsx
 <code>
-  {`const portfolio = {
+{`const portfolio = {
   name: "My Portfolio",
   value: 10000,
   returns: 12.5
@@ -249,10 +261,9 @@ import { Button, Card, Input, Select, Modal, Badge, Alert } from "amvasdev-ui";
 ```
 
 **❌ Incorrect:**
-
 ```tsx
 <code>
-  {`const portfolio = {
+{`const portfolio = {
 name: "My Portfolio",
 value: 10000,
 returns: 12.5
@@ -261,7 +272,6 @@ returns: 12.5
 ```
 
 **Why this matters:**
-
 - Template literals don't preserve source code indentation
 - The rendered output will show no indentation without explicit spacing
 - Always add 2 spaces at the start of each line after the first one
@@ -271,239 +281,191 @@ returns: 12.5
 **Prefer nullish coalescing over logical AND** for checking array/object properties:
 
 **✅ Correct:**
-
 ```tsx
-{
-  (portfolio.assets?.length ?? 0) > 0 ? <AssetList assets={portfolio.assets} /> : null;
-}
+{(portfolio.assets?.length ?? 0) > 0 ? (
+  <AssetList assets={portfolio.assets} />
+) : null}
 ```
 
 **❌ Incorrect:**
-
 ```tsx
-{
-  portfolio.assets?.length && <AssetList assets={portfolio.assets} />;
-}
+{portfolio.assets?.length && <AssetList assets={portfolio.assets} />}
 ```
 
 ## Project Architecture
 
-### Module-Based Architecture for SEO
+### Module Pattern
 
-**CRITICAL**: All feature pages use a module-based architecture to support SEO metadata while maintaining client-side interactivity for charts and calculations.
+YieldRate uses a module-based architecture where each feature is encapsulated in its own directory:
 
 **Structure:**
-
 ```
 app/
-  portfolio/
-    [id]/
-      page.tsx              # Server component - exports metadata, renders module
+  page.tsx              # Server component - exports metadata, renders module
 
 modules/
-  PortfolioView/
-    index.tsx              # Main client component with portfolio view
-    PerformanceChart.tsx   # Portfolio-specific chart component
-    AssetAllocation.tsx    # Portfolio-specific allocation view
+  Home/
+    index.tsx           # Main client component
+    Hero.tsx            # Page-specific subcomponents
+    TimeAdvantage.tsx
     ...
-
-components/visualization/   # Shared visualization components
-  ChartContainer.tsx
-  TimeSeriesChart.tsx
-  MetricsCard.tsx
-  DateRangePicker.tsx
+  InvestmentChart/
+    index.tsx           # Main client component with context provider
+    ChartContainer.tsx
+    InvestmentControls.tsx
+    ...
 ```
 
-**Page Pattern (app/.../page.tsx):**
-
+**Page Pattern (app/page.tsx):**
 ```tsx
-import type { Metadata } from "next";
-import PortfolioView from "@/modules/PortfolioView";
+import Home from "@/modules/Home";
 
-export const metadata: Metadata = {
-  title: "Portfolio View | YieldRate",
-  description: "Visualize and analyze your investment portfolio performance over time",
-};
-
-export default function PortfolioViewPage() {
-  return <PortfolioView />;
+export default function HomePage() {
+  return <Home />;
 }
 ```
 
-**Module Index Pattern (modules/PortfolioView/index.tsx):**
-
+**Module Index Pattern (modules/Home/index.tsx):**
 ```tsx
 "use client";
-import { useState } from "react";
-import DateRangePicker from "@/components/visualization/DateRangePicker";
-import MetricsCard from "@/components/visualization/MetricsCard";
-import PerformanceChart from "./PerformanceChart";
-import AssetAllocation from "./AssetAllocation";
+import { SECTION_IDS } from "@/constants/sections";
+import InvestmentChart from "@/modules/InvestmentChart";
+import Hero from "./Hero";
+import TimeAdvantage from "./TimeAdvantage";
 
-const PortfolioView = () => {
-  const [dateRange, setDateRange] = useState({ start: null, end: null });
-
-  return (
-    <div className="flex flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <h1 className="text-2xl md:text-4xl font-bold">Portfolio View</h1>
-
-      <DateRangePicker value={dateRange} onChange={setDateRange} />
-
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MetricsCard title="Total Return" value="12.5%" trend="up" />
-        {/* More metrics */}
-      </section>
-
-      <PerformanceChart dateRange={dateRange} />
-      <AssetAllocation />
+const Home = () => (
+  <div className="min-h-svh bg-base-200">
+    <div className="container mx-auto px-4 py-8">
+      <Hero />
+      <div id={SECTION_IDS.INVESTMENT_CHART}>
+        <InvestmentChart />
+      </div>
+      <TimeAdvantage />
     </div>
-  );
-};
+  </div>
+);
 
-export default PortfolioView;
+export default Home;
 ```
-
-**Page-Specific Components (modules/PortfolioView/PerformanceChart.tsx):**
-
-```tsx
-import { TimeSeriesChart } from "@/components/visualization/TimeSeriesChart";
-import ChartContainer from "@/components/visualization/ChartContainer";
-
-interface PerformanceChartProps {
-  dateRange: { start: Date | null; end: Date | null };
-}
-
-const PerformanceChart = ({ dateRange }: PerformanceChartProps) => {
-  const data = [
-    { date: "2024-01", value: 10000 },
-    { date: "2024-02", value: 10500 },
-    // ... more data points
-  ];
-
-  return (
-    <ChartContainer title="Portfolio Value" controls={["export", "fullscreen"]}>
-      <TimeSeriesChart data={data} xKey="date" yKey="value" lineColor="hsl(var(--primary))" />
-    </ChartContainer>
-  );
-};
-
-export default PerformanceChart;
-```
-
-**Naming Conventions:**
-
-- **Modules:** CamelCase (e.g., `PortfolioView`, `AnalysisComparison`)
-- **Module exports:** Same as folder name (e.g., `PortfolioView`)
-- **Page-specific components:** Descriptive names (e.g., `PerformanceChart`, `AssetAllocation`)
-
-**Shared Visualization Components:**
-
-- `ChartContainer` - Wrapper for charts with controls
-- `TimeSeriesChart` - Line/area charts for time-based data
-- `MetricsCard` - Display key metrics with trends
-- `DateRangePicker` - Date range selection
-- `AllocationPieChart` - Pie/donut charts for allocations
-- `DataTable` - Tables with sorting/filtering
 
 **"use client" Directive:**
-
-- Add to module index files (they manage state and interactivity)
-- Add to page-specific components that use client-side features (state, effects, event handlers)
+- Add to module index files that manage state and interactivity
+- Add to components that use React hooks, browser APIs, or event handlers
 - NOT needed in page.tsx (server component for metadata)
 - NOT needed in pure presentational components
 
-**Rule:** Only add "use client" to components that use React hooks, browser APIs, or event handlers.
+### Context Provider Pattern
 
-### Data Flow Pattern
-
-For investment data:
-
-```tsx
-// 1. Data fetching/calculation at module level
-const PortfolioView = () => {
-  const { data, loading } = usePortfolioData(portfolioId);
-
-  if (loading) return <LoadingSpinner />;
-
-  // 2. Pass processed data to child components
-  return <PerformanceChart data={data.performance} />;
-};
-
-// 3. Child components focus on visualization only
-const PerformanceChart = ({ data }) => <TimeSeriesChart data={data} />;
-```
-
-### State Management Guidelines
-
-- **Local state:** Use for UI interactions (date ranges, chart zoom, filters)
-- **Module state:** Use for feature-specific data (portfolio data, calculations)
-- **Global state:** Use for user preferences, authentication, cross-module data
-
-## Common Patterns
-
-### Investment Metrics Display
-
-```tsx
-const METRIC_CARDS = [
-  { title: "Total Value", value: "$125,450", trend: "up" as const },
-  { title: "Total Return", value: "12.5%", trend: "up" as const },
-  { title: "YTD Return", value: "8.2%", trend: "up" as const },
-  { title: "Risk Score", value: "6/10", trend: "neutral" as const },
-];
-
-export default function PortfolioMetrics() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {METRIC_CARDS.map((metric) => (
-        <MetricsCard key={metric.title} {...metric} />
-      ))}
-    </div>
-  );
-}
-```
-
-### Chart Configuration
-
-```tsx
-const CHART_CONFIG = {
-  colors: {
-    primary: "hsl(var(--primary))",
-    success: "hsl(var(--success))",
-    warning: "hsl(var(--warning))",
-  },
-  defaultTimeRange: "1Y",
-  animationDuration: 300,
-};
-
-const PerformanceChart = ({ data }: ChartProps) => (
-  <TimeSeriesChart
-    data={data}
-    lineColor={CHART_CONFIG.colors.primary}
-    animationDuration={CHART_CONFIG.animationDuration}
-  />
-);
-```
-
-### Date Range Selection
+The `InvestmentChart` module uses React Context for state management:
 
 ```tsx
 "use client";
-import { useState } from "react";
-import DateRangePicker from "@/components/visualization/DateRangePicker";
+import { InvestmentProvider } from "@/contexts/InvestmentContext";
+import ChartContainer from "./ChartContainer";
+import InvestmentControls from "./InvestmentControls";
 
-const DEFAULT_DATE_RANGE = {
-  start: new Date(new Date().getFullYear() - 1, 0, 1),
-  end: new Date(),
-};
+const InvestmentChart = () => (
+  <InvestmentProvider>
+    <div className="flex flex-col gap-6 w-full">
+      <ChartContainer />
+      <InvestmentControls />
+    </div>
+  </InvestmentProvider>
+);
 
-export default function AnalysisPage() {
-  const [dateRange, setDateRange] = useState(DEFAULT_DATE_RANGE);
-
-  return <DateRangePicker value={dateRange} onChange={setDateRange} />;
-}
+export default InvestmentChart;
 ```
 
-### Module-Level Constants
+**InvestmentContext Features:**
+- Manages up to 3 investments (MAX_INVESTMENTS = 3)
+- Provides CRUD operations: `addInvestment`, `updateInvestment`, `removeInvestment`
+- Handles chart calculations via `drawChart()` (calls API route)
+- Supports chart type switching: `"line"` or `"bar"`
+- Tracks focused investment with `focusedInvestmentId`
+- Default color palette: primary, secondary, accent (from DaisyUI)
+
+### API Route Pattern
+
+Investment calculations are handled server-side:
+
+**Route:** `app/api/calculate/route.ts`
+
+**GET endpoint:** Single investment calculation via query params
+```
+GET /api/calculate?months=120&initialAmount=10000&monthlyContribution=500&annualInterestRate=7
+```
+
+**POST endpoint:** Multiple investment calculations
+```json
+POST /api/calculate
+[
+  {
+    "id": "investment-1",
+    "months": 120,
+    "initialAmount": 10000,
+    "monthlyContribution": 500,
+    "annualInterestRate": 7
+  },
+  {
+    "id": "investment-2",
+    "months": 60,
+    "initialAmount": 5000,
+    "monthlyContribution": 300,
+    "annualInterestRate": 5
+  }
+]
+```
+
+**Business Logic:** All calculations are in `services/investment.ts`
+- `validateAndParseParams()` - Validates input parameters
+- `calculateInvestment()` - Calculates monthly data, total value, interest
+- `calculateMultipleInvestments()` - Calculates multiple investments
+
+### State Management Guidelines
+
+- **Local state:** Use for UI interactions (modal open/close, form inputs)
+- **Context state:** Use for feature-specific data (InvestmentContext)
+- **Global providers:** Use for app-wide state (DeviceContext, PostHog)
+
+## Common Patterns
+
+### Investment Calculation Flow
+
+1. User inputs investment parameters in `InvestmentControls`
+2. Parameters stored in `InvestmentContext`
+3. User clicks "Draw Chart" → calls `drawChart()`
+4. Context calls API via `utils/api.ts` → `calculateInvestments()`
+5. API route validates and calculates using `services/investment.ts`
+6. Results stored in context → `ChartContainer` renders with Recharts
+
+### Device Detection Pattern
+
+```tsx
+import { useDevice } from "@/contexts/DeviceContext";
+
+const MyComponent = () => {
+  const { isMobile, isTablet } = useDevice();
+
+  return (
+    <div className={isMobile ? "flex-col" : "flex-row"}>
+      {/* Responsive content */}
+    </div>
+  );
+};
+```
+
+### Section Navigation Pattern
+
+```tsx
+import { SECTION_IDS } from "@/constants/sections";
+import Link from "next/link";
+
+<Link href={`#${SECTION_IDS.INVESTMENT_CHART}`}>
+  Go to Investment Chart
+</Link>
+```
+
+### Module-Level Constants Pattern
 
 Declare all static data outside the component using SCREAMING_SNAKE_CASE:
 
@@ -536,8 +498,8 @@ export default function Page() {
 5. **Nullish coalescing** - Use `??` instead of `&&` for conditional rendering
 6. **SCREAMING_SNAKE_CASE** - For all module-level constants
 7. **Links not buttons** - Use proper semantic elements for navigation
-8. **amvasdev-ui components** - Reference COMPONENT_USAGE_GUIDE.md for props
-9. **Responsive design** - Use grid with breakpoints (md:grid-cols-2, lg:grid-cols-3, etc.)
-10. **Data validation** - Always validate and sanitize investment data before display
-11. **Number formatting** - Use proper currency and percentage formatting
-12. **Chart accessibility** - Provide alternative text and data tables for charts
+8. **amvasdev-ui components** - Import from `amvasdev-ui` package
+9. **DaisyUI utility classes** - Use for theming (`bg-base-100`, `text-primary`, etc.)
+10. **Responsive design** - Use Tailwind breakpoints (`md:`, `lg:`, etc.)
+11. **Number formatting** - Use proper currency and percentage formatting for investment data
+12. **Data validation** - Always validate investment parameters via `validateAndParseParams()`
