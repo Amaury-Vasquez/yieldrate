@@ -1,5 +1,5 @@
-import { Button, Input, Select } from "amvasdev-ui";
-import { CircleDollarSign, Tag, Timer, Trash2, TrendingUp } from "lucide-react";
+import { Input, Select } from "amvasdev-ui";
+import { CircleDollarSign, Tag, Timer, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { InvestmentParams, useInvestment } from "@/contexts/InvestmentContext";
 import {
@@ -20,8 +20,6 @@ const COLOR_MAP: Record<string, string> = {
 interface InvestmentEditControlProps {
   onChange: (id: string, investment: Partial<InvestmentParams>) => void;
   investment: InvestmentParams;
-  showDelete?: boolean;
-  onDelete?: (id: string) => void;
   onValidationChange?: (id: string, isValid: boolean) => void;
 }
 
@@ -33,8 +31,6 @@ const COLOR_OPTIONS = Object.keys(COLOR_MAP).map((colorKey) => ({
 const InvestmentEditControl = ({
   onChange,
   investment,
-  showDelete,
-  onDelete,
   onValidationChange,
 }: InvestmentEditControlProps) => {
   const { clearLimitError } = useInvestment();
@@ -187,18 +183,6 @@ const InvestmentEditControl = ({
           options={COLOR_OPTIONS}
         />
       </div>
-
-      {showDelete ? (
-        <Button
-          id={`remove-investment-${investment.id}`}
-          aria-label={`Remove ${investment.label}`}
-          onClick={() => onDelete?.(investment.id)}
-          variant="error"
-        >
-          <Trash2 size="16" />
-          Remove investment
-        </Button>
-      ) : null}
     </div>
   );
 };

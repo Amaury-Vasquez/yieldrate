@@ -38,8 +38,12 @@ export function validateAndParseParams(
   const parsedMonthlyContribution = Number(monthlyContribution);
   const parsedAnnualInterestRate = Number(annualInterestRate);
 
-  if (Number.isNaN(parsedMonths) || Number.isNaN(parsedInitialAmount) ||
-      Number.isNaN(parsedMonthlyContribution) || Number.isNaN(parsedAnnualInterestRate)) {
+  if (
+    Number.isNaN(parsedMonths) ||
+    Number.isNaN(parsedInitialAmount) ||
+    Number.isNaN(parsedMonthlyContribution) ||
+    Number.isNaN(parsedAnnualInterestRate)
+  ) {
     return {
       isValid: false,
       error: "All parameters must be valid numbers",
@@ -92,12 +96,18 @@ export function validateAndParseParams(
   };
 }
 
-export function calculateInvestment(params: InvestmentParams): InvestmentResult {
-  const { months, initialAmount, monthlyContribution, annualInterestRate } = params;
+export function getMonthlyInterestRate(annualInterestRate: number) {
+  return annualInterestRate / 100 / 12;
+}
+
+export function calculateInvestment(
+  params: InvestmentParams
+): InvestmentResult {
+  const { months, initialAmount, monthlyContribution, annualInterestRate } =
+    params;
 
   let total = initialAmount;
-  const monthlyInterestRate = annualInterestRate / 100 / 12;
-  const normalReturn = initialAmount + months * monthlyContribution;
+  const monthlyInterestRate = getMonthlyInterestRate(annualInterestRate);
 
   const monthlyData: MonthlyData[] = [];
 
@@ -115,6 +125,7 @@ export function calculateInvestment(params: InvestmentParams): InvestmentResult 
 
   const totalContributions = initialAmount + months * monthlyContribution;
   const totalInterest = total - totalContributions;
+  const normalReturn = initialAmount + months * monthlyContribution;
 
   return {
     monthlyData,

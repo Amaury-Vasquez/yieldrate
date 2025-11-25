@@ -1,4 +1,6 @@
 "use client";
+import { Button } from "amvasdev-ui";
+import { Plus } from "lucide-react";
 import { useMemo } from "react";
 import {
   BarChart,
@@ -13,8 +15,10 @@ import {
   ResponsiveContainer,
   LabelList,
 } from "recharts";
+import { INVESTMENT_CONTROLS_ID } from "@/constants/sections";
 import { useDevice } from "@/contexts/DeviceContext";
 import { useInvestment } from "@/contexts/InvestmentContext";
+import { useSectionScroll } from "@/hooks/useSectionScroll";
 
 interface DataPoint {
   month: number;
@@ -45,6 +49,7 @@ const InvestmentGrowthChart = () => {
     calculationError,
   } = useInvestment();
   const { isMobile, isTablet } = useDevice();
+  const scrollToSection = useSectionScroll();
 
   const chartData = useMemo(() => {
     if (!calculatedData || renderedInvestments.length === 0) {
@@ -175,14 +180,24 @@ const InvestmentGrowthChart = () => {
 
   if (renderedInvestments.length === 0 || !calculatedData) {
     return (
-      <div className="w-full h-72 md:h-80 lg:h-96 bg-base-200 rounded-lg flex items-center justify-center">
-        <p className="text-base-content/50 text-center">
+      <div className="w-full h-72 md:h-80 lg:h-96 bg-base-200 rounded-lg flex items-center justify-center flex-col gap-6">
+        <p className="text-base-content/50 text-center h-fit flex-none">
           No investments to display
           <br />
           <span className="text-sm">
-            Add an investment and click &quot;Show Yield Rate&quot;
+            Add an investment and click <br />
+            &quot;Show Yield Rate&quot;
           </span>
         </p>
+        <Button
+          variant="primary"
+          size="md"
+          onClick={() => scrollToSection(INVESTMENT_CONTROLS_ID)}
+          aria-label="Add investment to chart"
+        >
+          <Plus className="w-4 h-4" />
+          Add Investment
+        </Button>
       </div>
     );
   }

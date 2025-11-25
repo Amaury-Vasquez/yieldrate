@@ -7,7 +7,7 @@ if (typeof window !== "undefined" && !posthog.__loaded) {
   posthog.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
     person_profiles: "always",
-    name: "amvasdev-ui-docs",
+    name: "yieldrate",
   });
 }
 

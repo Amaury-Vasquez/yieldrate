@@ -1,6 +1,7 @@
 "use client";
 import { Button, Select } from "amvasdev-ui";
 import { Plus } from "lucide-react";
+import { INVESTMENT_CONTROLS_ID } from "@/constants/sections";
 import { useInvestment } from "@/contexts/InvestmentContext";
 import InvestmentsList from "./InvestmentsList";
 
@@ -36,7 +37,10 @@ const InvestmentControls = () => {
   };
 
   return (
-    <div className="card bg-base-100 shadow-xl w-full">
+    <div
+      className="card bg-base-100 shadow-xl w-full"
+      id={INVESTMENT_CONTROLS_ID}
+    >
       <div className="card-body">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <h2 className="card-title text-xl">Investments</h2>

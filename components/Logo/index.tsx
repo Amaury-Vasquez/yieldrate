@@ -35,6 +35,7 @@ const Logo = ({ size = "md", isHeading = false, className }: LogoProps) => {
         text,
         className
       )}
+      translate="no"
     >
       <TrendingUp className={clsx(icon, "text-primary")} />
       YieldRate

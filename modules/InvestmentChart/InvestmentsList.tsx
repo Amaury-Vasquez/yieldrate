@@ -1,7 +1,7 @@
 import { Button, ErrorLabel } from "amvasdev-ui";
-import { useState } from "react";
+import { Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { SECTION_IDS } from "@/constants/sections";
-import { useDevice } from "@/contexts/DeviceContext";
 import { useInvestment } from "@/contexts/InvestmentContext";
 import { useSectionScroll } from "@/hooks/useSectionScroll";
 import InvestmentEditControl from "./InvestmentEditControl";
@@ -18,7 +18,6 @@ const InvestmentsList = () => {
     clearLimitError,
   } = useInvestment();
   const scrollToSection = useSectionScroll();
-  const { isMobileOrTablet } = useDevice();
 
   const [isCurrentFormValid, setIsCurrentFormValid] = useState(true);
 
@@ -29,10 +28,15 @@ const InvestmentsList = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isCurrentFormValid) {
-      if (isMobileOrTablet) scrollToSection(SECTION_IDS.INVESTMENT_CHART);
+      scrollToSection(SECTION_IDS.INVESTMENT_CHART);
       drawChart();
     }
   };
+
+  const focusedInvestment = useMemo(
+    () => investments.find((i) => i.id === focusedInvestmentId),
+    [investments, focusedInvestmentId]
+  );
 
   return (
     <form
@@ -65,20 +69,34 @@ const InvestmentsList = () => {
             key={focusedInvestmentId}
             investment={investments.find((i) => i.id === focusedInvestmentId)!}
             onChange={updateInvestment}
-            showDelete={investments.length > 1}
-            onDelete={handleDeleteInvestment}
             onValidationChange={handleValidationChange}
           />
         ) : null}
 
-        <Button
-          variant="primary"
-          type="submit"
-          disabled={!isCurrentFormValid}
-          className="w-full md:w-fit"
-        >
-          Show Yield Rate{investments.length > 1 ? "s" : ""}
-        </Button>
+        <div className="flex gap-4 justify-center shrink-0 w-full flex-col-reverse md:flex-col md:w-48">
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={!isCurrentFormValid}
+            className="w-full"
+          >
+            {`Show Yield Rate${investments.length > 1 ? "s" : ""}`}
+          </Button>
+          {focusedInvestmentId &&
+          focusedInvestment &&
+          investments.length > 1 ? (
+            <Button
+              id={`remove-investment-${focusedInvestmentId}`}
+              aria-label={`Remove ${focusedInvestment.label}`}
+              onClick={handleDeleteInvestment}
+              variant="error"
+              className="w-full"
+            >
+              <Trash2 size="16" />
+              Remove investment
+            </Button>
+          ) : null}
+        </div>
       </div>
     </form>
   );

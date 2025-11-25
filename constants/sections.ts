@@ -15,3 +15,5 @@ export const SECTION_LINKS = Object.values(SECTION_IDS).map((value) => ({
   id: value,
   name: formatTextWithSpaces(value),
 }));
+
+export const INVESTMENT_CONTROLS_ID = "investment-controls";
